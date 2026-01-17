@@ -61,6 +61,7 @@ class MultiInputModel(nn.Module):
         
         # "Голова" модели - это несколько полносвязных слоев, которые принимают объединенный вектор
         # и делают на его основе финальное предсказание (в нашем случае - возраст).
+        '''
         self.head = nn.Sequential(
             nn.Linear(concatenated_size, common_hidden_dim),
             nn.ReLU(),
@@ -69,7 +70,25 @@ class MultiInputModel(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(common_hidden_dim // 2, output_dim) # Выходной слой с одним нейроном
+        )'''
+        self.head = nn.Sequential(
+            nn.Linear(concatenated_size, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            
+            nn.Linear(128, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            
+            nn.Linear(32, output_dim)
         )
+
 
     def forward(self, xs: list[torch.Tensor]):
         """
