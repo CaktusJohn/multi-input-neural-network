@@ -141,6 +141,11 @@ desktop.ini
 *.db
 *.sqlite3
 
+# MLflow tracking data (локальные логи и артефакты экспериментов)
+# Эта папка создается MLflow автоматически при запуске экспериментов.
+mlruns/
+mlartifacts/
+
 # Images (uncomment if you want to ignore generated images)
 # *.png
 # *.jpg

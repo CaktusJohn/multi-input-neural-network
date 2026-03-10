@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 JSON_PATH = "calculator_9_2025-03-19_filter.json"
-OUTPUT_DIR = ".." # Директория для сохранения .npy файлов (корень проекта).
+OUTPUT_DIR = "." # Директория для сохранения .npy файлов (корень проекта).
 STROOP_PROCESSING_WAY = 2
 
 TEST_CONFIG = {
