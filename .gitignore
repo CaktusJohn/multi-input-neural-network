@@ -111,7 +111,7 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# Data files (uncomment if you want to ignore all data files)
+# Data files ()
 # *.npy
 # *.npz
 # *.h5
@@ -143,8 +143,8 @@ desktop.ini
 
 # MLflow tracking data (локальные логи и артефакты экспериментов)
 # Эта папка создается MLflow автоматически при запуске экспериментов.
-mlruns/
-mlartifacts/
+mlruns/.trash
+mlruns/*/model
 
 # Images (uncomment if you want to ignore generated images)
 # *.png
