@@ -144,6 +144,7 @@ desktop.ini
 # MLflow tracking data (локальные логи и артефакты экспериментов)
 mlruns/
 shared_run_report/
+shared_run_report*/
 mlflow.db
 # Images (uncomment if you want to ignore generated images)
 # *.png
@@ -181,7 +182,6 @@ mlflow.db
 !requirements.txt
 !setup.py
 !pyproject.toml
-!*.config.json
 
 
 *.json

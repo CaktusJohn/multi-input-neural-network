@@ -16,24 +16,27 @@ class SubtestBranch(nn.Module):
         self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, batch_first=True)
         # Полносвязный слой, который преобразует выход LSTM в вектор-представление (embedding) меньшего размера.
         self.fc = nn.Linear(lstm_hidden_dim, output_dim)
+        # Нормализация батча для стабилизации обучения
+        self.bn = nn.BatchNorm1d(output_dim)
         # Функция активации
         self.relu = nn.ReLU()
 
     def forward(self, x):
         # x имеет размерность: (размер батча, длина последовательности, количество признаков)
-        
+
         # LSTM возвращает `output` (выходы на каждом шаге) и кортеж `(h_n, c_n)` (последнее скрытое и клеточное состояние).
         # Нам нужно только последнее скрытое состояние `h_n`, так как оно содержит обобщенную информацию о всей последовательности.
         _, (h_n, _) = self.lstm(x)
-        
+
         # `h_n` имеет размерность: (количество слоев LSTM, размер батча, размер скрытого состояния).
         # Берем скрытое состояние самого последнего слоя LSTM.
         last_hidden_state = h_n[-1] # Размерность: (размер батча, размер скрытого состояния)
-        
+
         # Пропускаем это состояние через полносвязный слой, чтобы получить итоговый вектор-представление.
         embedding = self.fc(last_hidden_state)
+        embedding = self.bn(embedding)
         embedding = self.relu(embedding)
-        
+
         return embedding
 
 class MultiInputModel(nn.Module):

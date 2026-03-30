@@ -6,8 +6,8 @@ import mlflow
 import pandas as pd
 
 
-RUN_ID = "d975af90d30742678c46782e7ebbf7ab"
-OUTPUT_DIR = "shared_run_report"
+RUN_ID = "2d93c281a11740cda04c86973e8de53e"
+OUTPUT_DIR = "shared_run_report_norm_b"
 
 
 def main():
