@@ -1,6 +1,36 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+
+
+class Attention(nn.Module):
+    """
+    Механизм внимания для взвешивания выходов LSTM.
+    Позволяет модели фокусироваться на наиболее важных шагах последовательности.
+    """
+    def __init__(self, hidden_dim, attention_dim=32):
+        super().__init__()
+        # Полносвязный слой для вычисления важности каждого шага
+        self.attention_fc = nn.Linear(hidden_dim, attention_dim)
+        # Выходной слой для получения весов внимания
+        self.attention_out = nn.Linear(attention_dim, 1)
+
+    def forward(self, lstm_outputs):
+        # lstm_outputs: (batch_size, sequence_length, hidden_dim)
+        
+        # Вычисляем важность каждого шага последовательности
+        attention_scores = self.attention_fc(lstm_outputs)  # (batch_size, seq_len, attention_dim)
+        attention_scores = torch.tanh(attention_scores)
+        attention_weights = self.attention_out(attention_scores)  # (batch_size, seq_len, 1)
+        
+        # Применяем softmax для нормализации весов (сумма весов = 1)
+        attention_weights = F.softmax(attention_weights, dim=1)  # (batch_size, seq_len, 1)
+        
+        # Создаём взвешенную сумму выходов LSTM
+        context_vector = torch.sum(attention_weights * lstm_outputs, dim=1)  # (batch_size, hidden_dim)
+        
+        return context_vector, attention_weights
 
 
 class SubtestBranch(nn.Module):
@@ -9,11 +39,13 @@ class SubtestBranch(nn.Module):
     Каждая ветка обрабатывает данные одного конкретного подтеста.
     Ее задача - взять последовательность данных и преобразовать ее в вектор признаков фиксированного размера.
     """
-    def __init__(self, input_dim, lstm_hidden_dim=32, lstm_layers=1, output_dim=16):
+    def __init__(self, input_dim, lstm_hidden_dim=32, lstm_layers=1, output_dim=16, attention_dim=32):
         super().__init__()
         # LSTM-слой для обработки последовательности. `batch_first=True` означает, что
         # входной тензор будет иметь размерность (batch_size, sequence_length, num_features).
         self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, batch_first=True)
+        # Механизм внимания для взвешивания выходов LSTM
+        self.attention = Attention(lstm_hidden_dim, attention_dim)
         # Полносвязный слой, который преобразует выход LSTM в вектор-представление (embedding) меньшего размера.
         self.fc = nn.Linear(lstm_hidden_dim, output_dim)
         # Нормализация батча для стабилизации обучения
@@ -25,15 +57,15 @@ class SubtestBranch(nn.Module):
         # x имеет размерность: (размер батча, длина последовательности, количество признаков)
 
         # LSTM возвращает `output` (выходы на каждом шаге) и кортеж `(h_n, c_n)` (последнее скрытое и клеточное состояние).
-        # Нам нужно только последнее скрытое состояние `h_n`, так как оно содержит обобщенную информацию о всей последовательности.
-        _, (h_n, _) = self.lstm(x)
+        # Нам нужны выходы на каждом шаге для механизма внимания.
+        lstm_outputs, _ = self.lstm(x)  # lstm_outputs: (batch_size, seq_len, hidden_dim)
 
-        # `h_n` имеет размерность: (количество слоев LSTM, размер батча, размер скрытого состояния).
-        # Берем скрытое состояние самого последнего слоя LSTM.
-        last_hidden_state = h_n[-1] # Размерность: (размер батча, размер скрытого состояния)
+        # Применяем механизм внимания для получения взвешенного контекстного вектора
+        context_vector, attention_weights = self.attention(lstm_outputs)
+        # context_vector: (batch_size, hidden_dim)
 
-        # Пропускаем это состояние через полносвязный слой, чтобы получить итоговый вектор-представление.
-        embedding = self.fc(last_hidden_state)
+        # Пропускаем контекстный вектор через полносвязный слой, чтобы получить итоговый вектор-представление.
+        embedding = self.fc(context_vector)
         embedding = self.bn(embedding)
         embedding = self.relu(embedding)
 
