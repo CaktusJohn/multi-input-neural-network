@@ -9,15 +9,14 @@ class SubtestBranch(nn.Module):
     Каждая ветка обрабатывает данные одного конкретного подтеста.
     Ее задача - взять последовательность данных и преобразовать ее в вектор признаков фиксированного размера.
     """
-    def __init__(self, input_dim, lstm_hidden_dim=32, lstm_layers=1, output_dim=16):
+    # NOTE: упрощенная ветка (меньше параметров), чтобы проверить рост ошибки
+    def __init__(self, input_dim, lstm_hidden_dim=16, lstm_layers=1, output_dim=8):
         super().__init__()
         # LSTM-слой для обработки последовательности. `batch_first=True` означает, что
         # входной тензор будет иметь размерность (batch_size, sequence_length, num_features).
         self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, batch_first=True)
         # Полносвязный слой, который преобразует выход LSTM в вектор-представление (embedding) меньшего размера.
         self.fc = nn.Linear(lstm_hidden_dim, output_dim)
-        # Нормализация батча для стабилизации обучения
-        self.bn = nn.BatchNorm1d(output_dim)
         # Функция активации
         self.relu = nn.ReLU()
 
@@ -34,7 +33,6 @@ class SubtestBranch(nn.Module):
 
         # Пропускаем это состояние через полносвязный слой, чтобы получить итоговый вектор-представление.
         embedding = self.fc(last_hidden_state)
-        embedding = self.bn(embedding)
         embedding = self.relu(embedding)
 
         return embedding
@@ -45,7 +43,8 @@ class MultiInputModel(nn.Module):
     по одной для каждого подтеста. Выходы всех веток затем объединяются (конкатенируются)
     и подаются в общую "голову" для финального предсказания.
     """
-    def __init__(self, input_dims: dict, common_hidden_dim=128, output_dim=1):
+    # NOTE: упрощенная модель (меньше параметров), чтобы проверить рост ошибки
+    def __init__(self, input_dims: dict, common_hidden_dim=32, output_dim=1):
         """
         Args:
             input_dims (dict): Словарь, который сопоставляет имя теста с количеством признаков в нем.
@@ -61,8 +60,8 @@ class MultiInputModel(nn.Module):
         })
         
         # Вычисляем общий размер вектора после объединения выходов всех веток.
-        # Каждая ветка выдает вектор размером 16 (как определено в `output_dim` класса SubtestBranch).
-        concatenated_size = 16 * len(input_dims)
+        # Каждая ветка выдает вектор размером 8 (см. output_dim в SubtestBranch по умолчанию).
+        concatenated_size = 8 * len(input_dims)
         
         # "Голова" модели - это несколько полносвязных слоев, которые принимают объединенный вектор
         # и делают на его основе финальное предсказание (в нашем случае - возраст).
@@ -76,22 +75,11 @@ class MultiInputModel(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(common_hidden_dim // 2, output_dim) # Выходной слой с одним нейроном
         )'''
+        # Упрощенная "голова": без BatchNorm/Dropout и всего 2 линейных слоя
         self.head = nn.Sequential(
-            nn.Linear(concatenated_size, 128),
-            nn.BatchNorm1d(128),
+            nn.Linear(concatenated_size, common_hidden_dim),
             nn.ReLU(),
-            nn.Dropout(0.3),
-            
-            nn.Linear(128, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            
-            nn.Linear(32, output_dim)
+            nn.Linear(common_hidden_dim, output_dim),
         )
 
 
