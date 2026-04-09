@@ -9,31 +9,33 @@ class SubtestBranch(nn.Module):
     Каждая ветка обрабатывает данные одного конкретного подтеста.
     Ее задача - взять последовательность данных и преобразовать ее в вектор признаков фиксированного размера.
     """
-    # NOTE: упрощенная ветка (меньше параметров), чтобы проверить рост ошибки
-    def __init__(self, input_dim, lstm_hidden_dim=16, lstm_layers=1, output_dim=8):
+    # Улучшенная ветка с большей емкостью для уменьшения ошибки
+    def __init__(self, input_dim, lstm_hidden_dim=32, lstm_layers=2, output_dim=16):
         super().__init__()
-        # LSTM-слой для обработки последовательности. `batch_first=True` означает, что
-        # входной тензор будет иметь размерность (batch_size, sequence_length, num_features).
-        self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, batch_first=True)
-        # Полносвязный слой, который преобразует выход LSTM в вектор-представление (embedding) меньшего размера.
-        self.fc = nn.Linear(lstm_hidden_dim, output_dim)
-        # Функция активации
+        # LSTM-слой для обработки последовательности с dropout для регуляризации
+        self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, 
+                           batch_first=True, dropout=0.1 if lstm_layers > 1 else 0)
+        
+        # Двухслойная обработка для лучшей feature extraction
+        self.fc1 = nn.Linear(lstm_hidden_dim, lstm_hidden_dim // 2)
+        self.fc2 = nn.Linear(lstm_hidden_dim // 2, output_dim)
         self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.1)  # Легкий dropout для регуляризации
 
     def forward(self, x):
         # x имеет размерность: (размер батча, длина последовательности, количество признаков)
 
         # LSTM возвращает `output` (выходы на каждом шаге) и кортеж `(h_n, c_n)` (последнее скрытое и клеточное состояние).
-        # Нам нужно только последнее скрытое состояние `h_n`, так как оно содержит обобщенную информацию о всей последовательности.
         _, (h_n, _) = self.lstm(x)
 
         # `h_n` имеет размерность: (количество слоев LSTM, размер батча, размер скрытого состояния).
         # Берем скрытое состояние самого последнего слоя LSTM.
         last_hidden_state = h_n[-1] # Размерность: (размер батча, размер скрытого состояния)
 
-        # Пропускаем это состояние через полносвязный слой, чтобы получить итоговый вектор-представление.
-        embedding = self.fc(last_hidden_state)
-        embedding = self.relu(embedding)
+        # Двухслойная обработка с dropout для лучшей feature extraction
+        x = self.relu(self.fc1(last_hidden_state))
+        x = self.dropout(x)
+        embedding = self.relu(self.fc2(x))
 
         return embedding
 
@@ -43,8 +45,8 @@ class MultiInputModel(nn.Module):
     по одной для каждого подтеста. Выходы всех веток затем объединяются (конкатенируются)
     и подаются в общую "голову" для финального предсказания.
     """
-    # NOTE: упрощенная модель (меньше параметров), чтобы проверить рост ошибки
-    def __init__(self, input_dims: dict, common_hidden_dim=32, output_dim=1):
+    # Улучшенная модель с большей емкостью для уменьшения ошибки
+    def __init__(self, input_dims: dict, common_hidden_dim=64, output_dim=1):
         """
         Args:
             input_dims (dict): Словарь, который сопоставляет имя теста с количеством признаков в нем.
@@ -60,26 +62,20 @@ class MultiInputModel(nn.Module):
         })
         
         # Вычисляем общий размер вектора после объединения выходов всех веток.
-        # Каждая ветка выдает вектор размером 8 (см. output_dim в SubtestBranch по умолчанию).
-        concatenated_size = 8 * len(input_dims)
+        # Каждая ветка выдает вектор размером 16 (см. output_dim в SubtestBranch по умолчанию).
+        concatenated_size = 16 * len(input_dims)
         
-        # "Голова" модели - это несколько полносвязных слоев, которые принимают объединенный вектор
-        # и делают на его основе финальное предсказание (в нашем случае - возраст).
-        '''
+        # Углубленная "голова" модели с dropout для регуляризации
         self.head = nn.Sequential(
-            nn.Linear(concatenated_size, common_hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.2), # Слой Dropout для регуляризации (борьбы с переобучением)
-            nn.Linear(common_hidden_dim, common_hidden_dim // 2),
+            nn.Linear(concatenated_size, 128),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(common_hidden_dim // 2, output_dim) # Выходной слой с одним нейроном
-        )'''
-        # Упрощенная "голова": без BatchNorm/Dropout и всего 2 линейных слоя
-        self.head = nn.Sequential(
-            nn.Linear(concatenated_size, common_hidden_dim),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(common_hidden_dim, output_dim),
+            nn.Dropout(0.1),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, output_dim)
         )
 
 
