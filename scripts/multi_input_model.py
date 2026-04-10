@@ -4,33 +4,56 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class Attention(nn.Module):
+class MultiHeadAttention(nn.Module):
     """
-    Механизм внимания для взвешивания выходов LSTM.
-    Позволяет модели фокусироваться на наиболее важных шагах последовательности.
+    Улучшенный механизм многоголового внимания.
+    Позволяет модели фокусироваться на различных аспектах последовательности.
     """
-    def __init__(self, hidden_dim, attention_dim=32):
+    def __init__(self, hidden_dim, num_heads=4, dropout=0.1):
         super().__init__()
-        # Полносвязный слой для вычисления важности каждого шага
-        self.attention_fc = nn.Linear(hidden_dim, attention_dim)
-        # Выходной слой для получения весов внимания
-        self.attention_out = nn.Linear(attention_dim, 1)
-
-    def forward(self, lstm_outputs):
-        # lstm_outputs: (batch_size, sequence_length, hidden_dim)
+        assert hidden_dim % num_heads == 0, "hidden_dim must be divisible by num_heads"
         
-        # Вычисляем важность каждого шага последовательности
-        attention_scores = self.attention_fc(lstm_outputs)  # (batch_size, seq_len, attention_dim)
-        attention_scores = torch.tanh(attention_scores)
-        attention_weights = self.attention_out(attention_scores)  # (batch_size, seq_len, 1)
+        self.hidden_dim = hidden_dim
+        self.num_heads = num_heads
+        self.head_dim = hidden_dim // num_heads
         
-        # Применяем softmax для нормализации весов (сумма весов = 1)
-        attention_weights = F.softmax(attention_weights, dim=1)  # (batch_size, seq_len, 1)
+        # Query, Key, Value проекции
+        self.q_proj = nn.Linear(hidden_dim, hidden_dim)
+        self.k_proj = nn.Linear(hidden_dim, hidden_dim)
+        self.v_proj = nn.Linear(hidden_dim, hidden_dim)
         
-        # Создаём взвешенную сумму выходов LSTM
-        context_vector = torch.sum(attention_weights * lstm_outputs, dim=1)  # (batch_size, hidden_dim)
+        # Выходная проекция
+        self.out_proj = nn.Linear(hidden_dim, hidden_dim)
+        self.dropout = nn.Dropout(dropout)
         
-        return context_vector, attention_weights
+    def forward(self, x):
+        batch_size, seq_len, _ = x.shape
+        
+        # Проекции
+        Q = self.q_proj(x)  # (batch_size, seq_len, hidden_dim)
+        K = self.k_proj(x)
+        V = self.v_proj(x)
+        
+        # Разделение на головы
+        Q = Q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        K = K.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        V = V.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        
+        # Scaled dot-product attention
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.head_dim ** 0.5)
+        attention_weights = F.softmax(scores, dim=-1)
+        attention_weights = self.dropout(attention_weights)
+        
+        # Применение весов
+        context = torch.matmul(attention_weights, V)
+        
+        # Объединение голов
+        context = context.transpose(1, 2).contiguous().view(batch_size, seq_len, self.hidden_dim)
+        
+        # Глобальный пулинг (среднее по последовательности)
+        context_vector = context.mean(dim=1)  # (batch_size, hidden_dim)
+        
+        return self.out_proj(context_vector), attention_weights.mean(dim=1)  # возвращаем средние веса по головам
 
 
 class SubtestBranch(nn.Module):
@@ -39,35 +62,37 @@ class SubtestBranch(nn.Module):
     Каждая ветка обрабатывает данные одного конкретного подтеста.
     Ее задача - взять последовательность данных и преобразовать ее в вектор признаков фиксированного размера.
     """
-    def __init__(self, input_dim, lstm_hidden_dim=32, lstm_layers=1, output_dim=16, attention_dim=32):
+    def __init__(self, input_dim, lstm_hidden_dim=64, lstm_layers=2, output_dim=32, num_heads=4):
         super().__init__()
-        # LSTM-слой для обработки последовательности. `batch_first=True` означает, что
-        # входной тензор будет иметь размерность (batch_size, sequence_length, num_features).
-        self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, batch_first=True)
-        # Механизм внимания для взвешивания выходов LSTM
-        self.attention = Attention(lstm_hidden_dim, attention_dim)
-        # Полносвязный слой, который преобразует выход LSTM в вектор-представление (embedding) меньшего размера.
-        self.fc = nn.Linear(lstm_hidden_dim, output_dim)
-        # Нормализация батча для стабилизации обучения
-        self.bn = nn.BatchNorm1d(output_dim)
-        # Функция активации
+        # LSTM-слой для обработки последовательности с dropout
+        self.lstm = nn.LSTM(input_dim, lstm_hidden_dim, lstm_layers, 
+                           batch_first=True, dropout=0.1 if lstm_layers > 1 else 0)
+        
+        # Улучшенный механизм многоголового внимания
+        self.attention = MultiHeadAttention(lstm_hidden_dim, num_heads, dropout=0.1)
+        
+        # Двухслойная обработка для лучшей feature extraction
+        self.fc1 = nn.Linear(lstm_hidden_dim, lstm_hidden_dim // 2)
+        self.fc2 = nn.Linear(lstm_hidden_dim // 2, output_dim)
+        self.dropout = nn.Dropout(0.1)
+        # Layer normalization вместо BatchNorm
+        self.layer_norm = nn.LayerNorm(output_dim)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         # x имеет размерность: (размер батча, длина последовательности, количество признаков)
 
-        # LSTM возвращает `output` (выходы на каждом шаге) и кортеж `(h_n, c_n)` (последнее скрытое и клеточное состояние).
-        # Нам нужны выходы на каждом шаге для механизма внимания.
-        lstm_outputs, _ = self.lstm(x)  # lstm_outputs: (batch_size, seq_len, hidden_dim)
+        # LSTM возвращает выходы на каждом шаге
+        lstm_outputs, _ = self.lstm(x)  # (batch_size, seq_len, hidden_dim)
 
-        # Применяем механизм внимания для получения взвешенного контекстного вектора
+        # Применяем многоголовое внимание
         context_vector, attention_weights = self.attention(lstm_outputs)
-        # context_vector: (batch_size, hidden_dim)
-
-        # Пропускаем контекстный вектор через полносвязный слой, чтобы получить итоговый вектор-представление.
-        embedding = self.fc(context_vector)
-        embedding = self.bn(embedding)
-        embedding = self.relu(embedding)
+        
+        # Двухслойная обработка с dropout
+        x = self.relu(self.fc1(context_vector))
+        x = self.dropout(x)
+        embedding = self.relu(self.fc2(x))
+        embedding = self.layer_norm(embedding)
 
         return embedding
 
@@ -77,7 +102,7 @@ class MultiInputModel(nn.Module):
     по одной для каждого подтеста. Выходы всех веток затем объединяются (конкатенируются)
     и подаются в общую "голову" для финального предсказания.
     """
-    def __init__(self, input_dims: dict, common_hidden_dim=128, output_dim=1):
+    def __init__(self, input_dims: dict, common_hidden_dim=256, output_dim=1):
         """
         Args:
             input_dims (dict): Словарь, который сопоставляет имя теста с количеством признаков в нем.
@@ -93,8 +118,8 @@ class MultiInputModel(nn.Module):
         })
         
         # Вычисляем общий размер вектора после объединения выходов всех веток.
-        # Каждая ветка выдает вектор размером 16 (как определено в `output_dim` класса SubtestBranch).
-        concatenated_size = 16 * len(input_dims)
+        # Каждая ветка выдает вектор размером 32 (улучшенная емкость)
+        concatenated_size = 32 * len(input_dims)
         
         # "Голова" модели - это несколько полносвязных слоев, которые принимают объединенный вектор
         # и делают на его основе финальное предсказание (в нашем случае - возраст).
@@ -108,21 +133,25 @@ class MultiInputModel(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(common_hidden_dim // 2, output_dim) # Выходной слой с одним нейроном
         )'''
+        # Углубленная голова с residual connections и layer normalization
         self.head = nn.Sequential(
-            nn.Linear(concatenated_size, 128),
-            nn.BatchNorm1d(128),
+            nn.Linear(concatenated_size, 256),
+            nn.LayerNorm(256),
             nn.ReLU(),
             nn.Dropout(0.3),
             
-            nn.Linear(128, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            
-            nn.Linear(64, 32),
+            nn.Linear(256, 128),
+            nn.LayerNorm(128),
             nn.ReLU(),
             nn.Dropout(0.2),
             
+            nn.Linear(128, 64),
+            nn.LayerNorm(64),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            
+            nn.Linear(64, 32),
+            nn.ReLU(),
             nn.Linear(32, output_dim)
         )
 
