@@ -1,0 +1,145 @@
+param_name,shape,num_params,requires_grad,dtype
+branches.T1back.lstm.weight_ih_l0,"(128, 8)",1024,True,torch.float32
+branches.T1back.lstm.weight_hh_l0,"(128, 32)",4096,True,torch.float32
+branches.T1back.lstm.bias_ih_l0,"(128,)",128,True,torch.float32
+branches.T1back.lstm.bias_hh_l0,"(128,)",128,True,torch.float32
+branches.T1back.lstm.weight_ih_l0_reverse,"(128, 8)",1024,True,torch.float32
+branches.T1back.lstm.weight_hh_l0_reverse,"(128, 32)",4096,True,torch.float32
+branches.T1back.lstm.bias_ih_l0_reverse,"(128,)",128,True,torch.float32
+branches.T1back.lstm.bias_hh_l0_reverse,"(128,)",128,True,torch.float32
+branches.T1back.lstm.weight_ih_l1,"(128, 64)",8192,True,torch.float32
+branches.T1back.lstm.weight_hh_l1,"(128, 32)",4096,True,torch.float32
+branches.T1back.lstm.bias_ih_l1,"(128,)",128,True,torch.float32
+branches.T1back.lstm.bias_hh_l1,"(128,)",128,True,torch.float32
+branches.T1back.lstm.weight_ih_l1_reverse,"(128, 64)",8192,True,torch.float32
+branches.T1back.lstm.weight_hh_l1_reverse,"(128, 32)",4096,True,torch.float32
+branches.T1back.lstm.bias_ih_l1_reverse,"(128,)",128,True,torch.float32
+branches.T1back.lstm.bias_hh_l1_reverse,"(128,)",128,True,torch.float32
+branches.T1back.attention.0.weight,"(32, 64)",2048,True,torch.float32
+branches.T1back.attention.0.bias,"(32,)",32,True,torch.float32
+branches.T1back.attention.2.weight,"(1, 32)",32,True,torch.float32
+branches.T1back.attention.2.bias,"(1,)",1,True,torch.float32
+branches.T1back.layer_norm.weight,"(64,)",64,True,torch.float32
+branches.T1back.layer_norm.bias,"(64,)",64,True,torch.float32
+branches.T1back.output_proj.0.weight,"(64, 64)",4096,True,torch.float32
+branches.T1back.output_proj.0.bias,"(64,)",64,True,torch.float32
+branches.T1back.output_proj.1.weight,"(64,)",64,True,torch.float32
+branches.T1back.output_proj.1.bias,"(64,)",64,True,torch.float32
+branches.TStroop.lstm.weight_ih_l0,"(128, 5)",640,True,torch.float32
+branches.TStroop.lstm.weight_hh_l0,"(128, 32)",4096,True,torch.float32
+branches.TStroop.lstm.bias_ih_l0,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.bias_hh_l0,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.weight_ih_l0_reverse,"(128, 5)",640,True,torch.float32
+branches.TStroop.lstm.weight_hh_l0_reverse,"(128, 32)",4096,True,torch.float32
+branches.TStroop.lstm.bias_ih_l0_reverse,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.bias_hh_l0_reverse,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.weight_ih_l1,"(128, 64)",8192,True,torch.float32
+branches.TStroop.lstm.weight_hh_l1,"(128, 32)",4096,True,torch.float32
+branches.TStroop.lstm.bias_ih_l1,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.bias_hh_l1,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.weight_ih_l1_reverse,"(128, 64)",8192,True,torch.float32
+branches.TStroop.lstm.weight_hh_l1_reverse,"(128, 32)",4096,True,torch.float32
+branches.TStroop.lstm.bias_ih_l1_reverse,"(128,)",128,True,torch.float32
+branches.TStroop.lstm.bias_hh_l1_reverse,"(128,)",128,True,torch.float32
+branches.TStroop.attention.0.weight,"(32, 64)",2048,True,torch.float32
+branches.TStroop.attention.0.bias,"(32,)",32,True,torch.float32
+branches.TStroop.attention.2.weight,"(1, 32)",32,True,torch.float32
+branches.TStroop.attention.2.bias,"(1,)",1,True,torch.float32
+branches.TStroop.layer_norm.weight,"(64,)",64,True,torch.float32
+branches.TStroop.layer_norm.bias,"(64,)",64,True,torch.float32
+branches.TStroop.output_proj.0.weight,"(64, 64)",4096,True,torch.float32
+branches.TStroop.output_proj.0.bias,"(64,)",64,True,torch.float32
+branches.TStroop.output_proj.1.weight,"(64,)",64,True,torch.float32
+branches.TStroop.output_proj.1.bias,"(64,)",64,True,torch.float32
+branches.T258.lstm.weight_ih_l0,"(128, 10)",1280,True,torch.float32
+branches.T258.lstm.weight_hh_l0,"(128, 32)",4096,True,torch.float32
+branches.T258.lstm.bias_ih_l0,"(128,)",128,True,torch.float32
+branches.T258.lstm.bias_hh_l0,"(128,)",128,True,torch.float32
+branches.T258.lstm.weight_ih_l0_reverse,"(128, 10)",1280,True,torch.float32
+branches.T258.lstm.weight_hh_l0_reverse,"(128, 32)",4096,True,torch.float32
+branches.T258.lstm.bias_ih_l0_reverse,"(128,)",128,True,torch.float32
+branches.T258.lstm.bias_hh_l0_reverse,"(128,)",128,True,torch.float32
+branches.T258.lstm.weight_ih_l1,"(128, 64)",8192,True,torch.float32
+branches.T258.lstm.weight_hh_l1,"(128, 32)",4096,True,torch.float32
+branches.T258.lstm.bias_ih_l1,"(128,)",128,True,torch.float32
+branches.T258.lstm.bias_hh_l1,"(128,)",128,True,torch.float32
+branches.T258.lstm.weight_ih_l1_reverse,"(128, 64)",8192,True,torch.float32
+branches.T258.lstm.weight_hh_l1_reverse,"(128, 32)",4096,True,torch.float32
+branches.T258.lstm.bias_ih_l1_reverse,"(128,)",128,True,torch.float32
+branches.T258.lstm.bias_hh_l1_reverse,"(128,)",128,True,torch.float32
+branches.T258.attention.0.weight,"(32, 64)",2048,True,torch.float32
+branches.T258.attention.0.bias,"(32,)",32,True,torch.float32
+branches.T258.attention.2.weight,"(1, 32)",32,True,torch.float32
+branches.T258.attention.2.bias,"(1,)",1,True,torch.float32
+branches.T258.layer_norm.weight,"(64,)",64,True,torch.float32
+branches.T258.layer_norm.bias,"(64,)",64,True,torch.float32
+branches.T258.output_proj.0.weight,"(64, 64)",4096,True,torch.float32
+branches.T258.output_proj.0.bias,"(64,)",64,True,torch.float32
+branches.T258.output_proj.1.weight,"(64,)",64,True,torch.float32
+branches.T258.output_proj.1.bias,"(64,)",64,True,torch.float32
+branches.T274.lstm.weight_ih_l0,"(128, 7)",896,True,torch.float32
+branches.T274.lstm.weight_hh_l0,"(128, 32)",4096,True,torch.float32
+branches.T274.lstm.bias_ih_l0,"(128,)",128,True,torch.float32
+branches.T274.lstm.bias_hh_l0,"(128,)",128,True,torch.float32
+branches.T274.lstm.weight_ih_l0_reverse,"(128, 7)",896,True,torch.float32
+branches.T274.lstm.weight_hh_l0_reverse,"(128, 32)",4096,True,torch.float32
+branches.T274.lstm.bias_ih_l0_reverse,"(128,)",128,True,torch.float32
+branches.T274.lstm.bias_hh_l0_reverse,"(128,)",128,True,torch.float32
+branches.T274.lstm.weight_ih_l1,"(128, 64)",8192,True,torch.float32
+branches.T274.lstm.weight_hh_l1,"(128, 32)",4096,True,torch.float32
+branches.T274.lstm.bias_ih_l1,"(128,)",128,True,torch.float32
+branches.T274.lstm.bias_hh_l1,"(128,)",128,True,torch.float32
+branches.T274.lstm.weight_ih_l1_reverse,"(128, 64)",8192,True,torch.float32
+branches.T274.lstm.weight_hh_l1_reverse,"(128, 32)",4096,True,torch.float32
+branches.T274.lstm.bias_ih_l1_reverse,"(128,)",128,True,torch.float32
+branches.T274.lstm.bias_hh_l1_reverse,"(128,)",128,True,torch.float32
+branches.T274.attention.0.weight,"(32, 64)",2048,True,torch.float32
+branches.T274.attention.0.bias,"(32,)",32,True,torch.float32
+branches.T274.attention.2.weight,"(1, 32)",32,True,torch.float32
+branches.T274.attention.2.bias,"(1,)",1,True,torch.float32
+branches.T274.layer_norm.weight,"(64,)",64,True,torch.float32
+branches.T274.layer_norm.bias,"(64,)",64,True,torch.float32
+branches.T274.output_proj.0.weight,"(64, 64)",4096,True,torch.float32
+branches.T274.output_proj.0.bias,"(64,)",64,True,torch.float32
+branches.T274.output_proj.1.weight,"(64,)",64,True,torch.float32
+branches.T274.output_proj.1.bias,"(64,)",64,True,torch.float32
+branches.T278.lstm.weight_ih_l0,"(128, 7)",896,True,torch.float32
+branches.T278.lstm.weight_hh_l0,"(128, 32)",4096,True,torch.float32
+branches.T278.lstm.bias_ih_l0,"(128,)",128,True,torch.float32
+branches.T278.lstm.bias_hh_l0,"(128,)",128,True,torch.float32
+branches.T278.lstm.weight_ih_l0_reverse,"(128, 7)",896,True,torch.float32
+branches.T278.lstm.weight_hh_l0_reverse,"(128, 32)",4096,True,torch.float32
+branches.T278.lstm.bias_ih_l0_reverse,"(128,)",128,True,torch.float32
+branches.T278.lstm.bias_hh_l0_reverse,"(128,)",128,True,torch.float32
+branches.T278.lstm.weight_ih_l1,"(128, 64)",8192,True,torch.float32
+branches.T278.lstm.weight_hh_l1,"(128, 32)",4096,True,torch.float32
+branches.T278.lstm.bias_ih_l1,"(128,)",128,True,torch.float32
+branches.T278.lstm.bias_hh_l1,"(128,)",128,True,torch.float32
+branches.T278.lstm.weight_ih_l1_reverse,"(128, 64)",8192,True,torch.float32
+branches.T278.lstm.weight_hh_l1_reverse,"(128, 32)",4096,True,torch.float32
+branches.T278.lstm.bias_ih_l1_reverse,"(128,)",128,True,torch.float32
+branches.T278.lstm.bias_hh_l1_reverse,"(128,)",128,True,torch.float32
+branches.T278.attention.0.weight,"(32, 64)",2048,True,torch.float32
+branches.T278.attention.0.bias,"(32,)",32,True,torch.float32
+branches.T278.attention.2.weight,"(1, 32)",32,True,torch.float32
+branches.T278.attention.2.bias,"(1,)",1,True,torch.float32
+branches.T278.layer_norm.weight,"(64,)",64,True,torch.float32
+branches.T278.layer_norm.bias,"(64,)",64,True,torch.float32
+branches.T278.output_proj.0.weight,"(64, 64)",4096,True,torch.float32
+branches.T278.output_proj.0.bias,"(64,)",64,True,torch.float32
+branches.T278.output_proj.1.weight,"(64,)",64,True,torch.float32
+branches.T278.output_proj.1.bias,"(64,)",64,True,torch.float32
+head.0.weight,"(160, 320)",51200,True,torch.float32
+head.0.bias,"(160,)",160,True,torch.float32
+head.1.weight,"(160,)",160,True,torch.float32
+head.1.bias,"(160,)",160,True,torch.float32
+head.4.weight,"(80, 160)",12800,True,torch.float32
+head.4.bias,"(80,)",80,True,torch.float32
+head.5.weight,"(80,)",80,True,torch.float32
+head.5.bias,"(80,)",80,True,torch.float32
+head.8.weight,"(40, 80)",3200,True,torch.float32
+head.8.bias,"(40,)",40,True,torch.float32
+head.9.weight,"(40,)",40,True,torch.float32
+head.9.bias,"(40,)",40,True,torch.float32
+head.12.weight,"(1, 40)",40,True,torch.float32
+head.12.bias,"(1,)",1,True,torch.float32
