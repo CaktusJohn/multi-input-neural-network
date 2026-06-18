@@ -1,79 +1,169 @@
-MultiInputModel(
+MultiInputTransformerModel(
   (branches): ModuleDict(
-    (T1back): SubtestBranch(
-      (lstm): LSTM(8, 64, num_layers=2, batch_first=True, dropout=0.1)
-      (attention): MultiHeadAttention(
-        (q_proj): Linear(in_features=64, out_features=64, bias=True)
-        (k_proj): Linear(in_features=64, out_features=64, bias=True)
-        (v_proj): Linear(in_features=64, out_features=64, bias=True)
-        (out_proj): Linear(in_features=64, out_features=64, bias=True)
-        (dropout): Dropout(p=0.1, inplace=False)
+    (T1back): HybridBranch(
+      (conv_layers): Sequential(
+        (0): Conv1d(8, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+        (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): Conv1d(64, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+        (4): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): ReLU()
       )
-      (fc1): Linear(in_features=64, out_features=32, bias=True)
-      (fc2): Linear(in_features=32, out_features=32, bias=True)
-      (dropout): Dropout(p=0.1, inplace=False)
+      (transformer_encoder): TransformerEncoder(
+        (transformer_encoder): TransformerEncoder(
+          (layers): ModuleList(
+            (0-1): 2 x TransformerEncoderLayer(
+              (self_attn): MultiheadAttention(
+                (out_proj): NonDynamicallyQuantizableLinear(in_features=128, out_features=128, bias=True)
+              )
+              (linear1): Linear(in_features=128, out_features=256, bias=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+              (linear2): Linear(in_features=256, out_features=128, bias=True)
+              (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (dropout1): Dropout(p=0.1, inplace=False)
+              (dropout2): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+        (pos_encoder): PositionalEncoding()
+      )
+      (global_pool): AdaptiveAvgPool1d(output_size=1)
+      (fc): Linear(in_features=128, out_features=32, bias=True)
       (layer_norm): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
-      (relu): ReLU()
+      (dropout): Dropout(p=0.1, inplace=False)
     )
-    (TStroop): SubtestBranch(
-      (lstm): LSTM(5, 64, num_layers=2, batch_first=True, dropout=0.1)
-      (attention): MultiHeadAttention(
-        (q_proj): Linear(in_features=64, out_features=64, bias=True)
-        (k_proj): Linear(in_features=64, out_features=64, bias=True)
-        (v_proj): Linear(in_features=64, out_features=64, bias=True)
-        (out_proj): Linear(in_features=64, out_features=64, bias=True)
-        (dropout): Dropout(p=0.1, inplace=False)
+    (TStroop): HybridBranch(
+      (conv_layers): Sequential(
+        (0): Conv1d(5, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+        (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): Conv1d(64, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+        (4): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): ReLU()
       )
-      (fc1): Linear(in_features=64, out_features=32, bias=True)
-      (fc2): Linear(in_features=32, out_features=32, bias=True)
-      (dropout): Dropout(p=0.1, inplace=False)
+      (transformer_encoder): TransformerEncoder(
+        (transformer_encoder): TransformerEncoder(
+          (layers): ModuleList(
+            (0-1): 2 x TransformerEncoderLayer(
+              (self_attn): MultiheadAttention(
+                (out_proj): NonDynamicallyQuantizableLinear(in_features=128, out_features=128, bias=True)
+              )
+              (linear1): Linear(in_features=128, out_features=256, bias=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+              (linear2): Linear(in_features=256, out_features=128, bias=True)
+              (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (dropout1): Dropout(p=0.1, inplace=False)
+              (dropout2): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+        (pos_encoder): PositionalEncoding()
+      )
+      (global_pool): AdaptiveAvgPool1d(output_size=1)
+      (fc): Linear(in_features=128, out_features=32, bias=True)
       (layer_norm): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
-      (relu): ReLU()
+      (dropout): Dropout(p=0.1, inplace=False)
     )
-    (T258): SubtestBranch(
-      (lstm): LSTM(10, 64, num_layers=2, batch_first=True, dropout=0.1)
-      (attention): MultiHeadAttention(
-        (q_proj): Linear(in_features=64, out_features=64, bias=True)
-        (k_proj): Linear(in_features=64, out_features=64, bias=True)
-        (v_proj): Linear(in_features=64, out_features=64, bias=True)
-        (out_proj): Linear(in_features=64, out_features=64, bias=True)
-        (dropout): Dropout(p=0.1, inplace=False)
+    (T258): HybridBranch(
+      (conv_layers): Sequential(
+        (0): Conv1d(10, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+        (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): Conv1d(64, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+        (4): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): ReLU()
       )
-      (fc1): Linear(in_features=64, out_features=32, bias=True)
-      (fc2): Linear(in_features=32, out_features=32, bias=True)
-      (dropout): Dropout(p=0.1, inplace=False)
+      (transformer_encoder): TransformerEncoder(
+        (transformer_encoder): TransformerEncoder(
+          (layers): ModuleList(
+            (0-1): 2 x TransformerEncoderLayer(
+              (self_attn): MultiheadAttention(
+                (out_proj): NonDynamicallyQuantizableLinear(in_features=128, out_features=128, bias=True)
+              )
+              (linear1): Linear(in_features=128, out_features=256, bias=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+              (linear2): Linear(in_features=256, out_features=128, bias=True)
+              (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (dropout1): Dropout(p=0.1, inplace=False)
+              (dropout2): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+        (pos_encoder): PositionalEncoding()
+      )
+      (global_pool): AdaptiveAvgPool1d(output_size=1)
+      (fc): Linear(in_features=128, out_features=32, bias=True)
       (layer_norm): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
-      (relu): ReLU()
+      (dropout): Dropout(p=0.1, inplace=False)
     )
-    (T274): SubtestBranch(
-      (lstm): LSTM(7, 64, num_layers=2, batch_first=True, dropout=0.1)
-      (attention): MultiHeadAttention(
-        (q_proj): Linear(in_features=64, out_features=64, bias=True)
-        (k_proj): Linear(in_features=64, out_features=64, bias=True)
-        (v_proj): Linear(in_features=64, out_features=64, bias=True)
-        (out_proj): Linear(in_features=64, out_features=64, bias=True)
-        (dropout): Dropout(p=0.1, inplace=False)
+    (T274): HybridBranch(
+      (conv_layers): Sequential(
+        (0): Conv1d(7, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+        (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): Conv1d(64, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+        (4): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): ReLU()
       )
-      (fc1): Linear(in_features=64, out_features=32, bias=True)
-      (fc2): Linear(in_features=32, out_features=32, bias=True)
-      (dropout): Dropout(p=0.1, inplace=False)
+      (transformer_encoder): TransformerEncoder(
+        (transformer_encoder): TransformerEncoder(
+          (layers): ModuleList(
+            (0-1): 2 x TransformerEncoderLayer(
+              (self_attn): MultiheadAttention(
+                (out_proj): NonDynamicallyQuantizableLinear(in_features=128, out_features=128, bias=True)
+              )
+              (linear1): Linear(in_features=128, out_features=256, bias=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+              (linear2): Linear(in_features=256, out_features=128, bias=True)
+              (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (dropout1): Dropout(p=0.1, inplace=False)
+              (dropout2): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+        (pos_encoder): PositionalEncoding()
+      )
+      (global_pool): AdaptiveAvgPool1d(output_size=1)
+      (fc): Linear(in_features=128, out_features=32, bias=True)
       (layer_norm): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
-      (relu): ReLU()
+      (dropout): Dropout(p=0.1, inplace=False)
     )
-    (T278): SubtestBranch(
-      (lstm): LSTM(7, 64, num_layers=2, batch_first=True, dropout=0.1)
-      (attention): MultiHeadAttention(
-        (q_proj): Linear(in_features=64, out_features=64, bias=True)
-        (k_proj): Linear(in_features=64, out_features=64, bias=True)
-        (v_proj): Linear(in_features=64, out_features=64, bias=True)
-        (out_proj): Linear(in_features=64, out_features=64, bias=True)
-        (dropout): Dropout(p=0.1, inplace=False)
+    (T278): HybridBranch(
+      (conv_layers): Sequential(
+        (0): Conv1d(7, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+        (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): Conv1d(64, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+        (4): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): ReLU()
       )
-      (fc1): Linear(in_features=64, out_features=32, bias=True)
-      (fc2): Linear(in_features=32, out_features=32, bias=True)
-      (dropout): Dropout(p=0.1, inplace=False)
+      (transformer_encoder): TransformerEncoder(
+        (transformer_encoder): TransformerEncoder(
+          (layers): ModuleList(
+            (0-1): 2 x TransformerEncoderLayer(
+              (self_attn): MultiheadAttention(
+                (out_proj): NonDynamicallyQuantizableLinear(in_features=128, out_features=128, bias=True)
+              )
+              (linear1): Linear(in_features=128, out_features=256, bias=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+              (linear2): Linear(in_features=256, out_features=128, bias=True)
+              (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+              (dropout1): Dropout(p=0.1, inplace=False)
+              (dropout2): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+        (pos_encoder): PositionalEncoding()
+      )
+      (global_pool): AdaptiveAvgPool1d(output_size=1)
+      (fc): Linear(in_features=128, out_features=32, bias=True)
       (layer_norm): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
-      (relu): ReLU()
+      (dropout): Dropout(p=0.1, inplace=False)
     )
   )
   (head): Sequential(
